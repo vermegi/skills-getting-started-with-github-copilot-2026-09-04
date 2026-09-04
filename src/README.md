@@ -48,3 +48,7 @@ The application uses a simple data model with meaningful identifiers:
    - Grade level
 
 All data is stored in memory, which means data will be reset when the server restarts.
+
+## Running in a Container & CI/CD
+
+See [DEVELOPMENT.md](../DEVELOPMENT.md) for instructions on running the app locally in a Docker container and details of the GitHub Actions CI/CD pipeline.

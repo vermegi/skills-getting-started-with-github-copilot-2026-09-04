@@ -1,0 +1,9 @@
+services:
+  app:
+    build:
+      context: .
+      target: runtime
+    image: mergington-activities-api:local
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
