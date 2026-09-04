@@ -28,8 +28,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const spotsLeft = Math.max(details.max_participants - details.participants.length, 0);
         const waitlist = details.waitlist || [];
         const isFull = spotsLeft === 0;
-        const renderPeople = (people, isWaitlisted) =>
-          people
+        const renderPeople = (people, isWaitlisted) => {
+          const labelPrefix = isWaitlisted ? "the waitlist of " : "";
+          const buttonTitle = isWaitlisted ? "Remove from waitlist" : "Unregister participant";
+          return people
             .map(
               (person) => `
                   <li>
@@ -39,14 +41,13 @@ document.addEventListener("DOMContentLoaded", () => {
                       type="button"
                       data-activity="${escapeHtml(name)}"
                       data-email="${escapeHtml(person)}"
-                      aria-label="Remove ${escapeHtml(person)} from ${
-                        isWaitlisted ? "the waitlist of" : ""
-                      } ${escapeHtml(name)}"
-                      title="${isWaitlisted ? "Remove from waitlist" : "Unregister participant"}"
+                      aria-label="Remove ${escapeHtml(person)} from ${labelPrefix}${escapeHtml(name)}"
+                      title="${buttonTitle}"
                     >&times;</button>
                   </li>`
             )
             .join("");
+        };
 
         const participantItems = details.participants.length
           ? renderPeople(details.participants, false)
@@ -55,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ? renderPeople(waitlist, true)
           : '<li class="no-participants">No students on the waitlist</li>';
         const availabilityText = isFull
-          ? `Full &mdash; ${waitlist.length} on waitlist`
+          ? `Full — ${waitlist.length} on waitlist`
           : `${spotsLeft} spots left`;
 
         activityCard.innerHTML = `
