@@ -40,3 +40,14 @@ Thumbs.db
 .actrc*
 
 __pycache__/
+
+# .NET build output and tooling #
+###############################
+[Bb]in/
+[Oo]bj/
+[Tt]est[Rr]esult*/
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+.vs/
