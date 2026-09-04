@@ -47,6 +47,39 @@ def test_get_activities_returns_seeded_activities():
     }
 
 
+def test_get_analytics_returns_capacity_metrics_for_each_activity():
+    # Act
+    response = client.get("/activities/analytics")
+
+    # Assert
+    assert response.status_code == 200
+    analytics = response.json()
+    assert analytics["Chess Club"] == {
+        "utilization_percentage": 16.67,
+        "remaining_seats": 10,
+        "total_participants": 2,
+    }
+    assert analytics["Programming Class"] == {
+        "utilization_percentage": 10.0,
+        "remaining_seats": 18,
+        "total_participants": 2,
+    }
+    assert analytics["Basketball Team"] == {
+        "utilization_percentage": 0.0,
+        "remaining_seats": 15,
+        "total_participants": 0,
+    }
+
+
+def test_get_analytics_alias_returns_same_metrics():
+    # Act
+    response = client.get("/analytics")
+
+    # Assert
+    assert response.status_code == 200
+    assert response.json()["Chess Club"]["remaining_seats"] == 10
+
+
 def test_signup_adds_student_to_activity():
     # Arrange
     activity_name = "Chess Club"

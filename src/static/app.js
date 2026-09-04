@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const activitiesList = document.getElementById("activities-list");
+  const analyticsList = document.getElementById("analytics-list");
   const activitySelect = document.getElementById("activity");
   const signupForm = document.getElementById("signup-form");
   const messageDiv = document.getElementById("message");
@@ -8,6 +9,31 @@ document.addEventListener("DOMContentLoaded", () => {
     const element = document.createElement("div");
     element.textContent = value;
     return element.innerHTML;
+  }
+
+  async function fetchAnalytics() {
+    try {
+      const response = await fetch("/activities/analytics");
+      const analytics = await response.json();
+
+      analyticsList.innerHTML = "";
+      Object.entries(analytics).forEach(([name, metrics]) => {
+        const analyticsCard = document.createElement("div");
+        analyticsCard.className = "analytics-card";
+        analyticsCard.innerHTML = `
+          <div class="analytics-header">
+            <h4>${escapeHtml(name)}</h4>
+            <span class="utilization-pill">${metrics.utilization_percentage}%</span>
+          </div>
+          <p><strong>Participants:</strong> ${metrics.total_participants}</p>
+          <p><strong>Open seats:</strong> ${metrics.remaining_seats}</p>
+        `;
+        analyticsList.appendChild(analyticsCard);
+      });
+    } catch (error) {
+      analyticsList.innerHTML = "<p>Failed to load analytics.</p>";
+      console.error("Error fetching analytics:", error);
+    }
   }
 
   // Function to fetch activities from API
@@ -141,5 +167,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Initialize app
+  fetchAnalytics();
   fetchActivities();
 });

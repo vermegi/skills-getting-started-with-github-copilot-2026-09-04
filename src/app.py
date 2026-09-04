@@ -83,9 +83,38 @@ def root():
     return RedirectResponse(url="/static/index.html")
 
 
+def get_activity_analytics():
+    """Return per-activity capacity metrics for the dashboard and API consumers."""
+    analytics = {}
+
+    for activity_name, activity in activities.items():
+        total_participants = len(activity["participants"])
+        max_participants = activity["max_participants"]
+        remaining_seats = max(max_participants - total_participants, 0)
+        utilization_percentage = (
+            round((total_participants / max_participants) * 100, 2)
+            if max_participants > 0
+            else 0.0
+        )
+
+        analytics[activity_name] = {
+            "utilization_percentage": utilization_percentage,
+            "remaining_seats": remaining_seats,
+            "total_participants": total_participants,
+        }
+
+    return analytics
+
+
 @app.get("/activities")
 def get_activities():
     return activities
+
+
+@app.get("/activities/analytics")
+@app.get("/analytics")
+def get_activities_analytics():
+    return get_activity_analytics()
 
 
 @app.post("/activities/{activity_name}/signup")
