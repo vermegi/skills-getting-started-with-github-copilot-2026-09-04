@@ -25,7 +25,7 @@ FROM builder AS test
 
 COPY . .
 
-RUN python -m pytest
+RUN python -m pytest && touch /tmp/tests-passed
 
 # ---- Runtime stage: minimal image used to actually run the app ----
 FROM python:3.12-slim AS runtime
@@ -38,6 +38,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 # Copy the pre-built virtualenv from the builder stage
 COPY --from=builder /opt/venv /opt/venv
+
+# Depend on the test stage so building the runtime image always requires the
+# test suite to have passed first (the marker file itself is not used).
+COPY --from=test /tmp/tests-passed /tmp/tests-passed
 
 # Copy only the application source needed at runtime
 COPY src ./src
