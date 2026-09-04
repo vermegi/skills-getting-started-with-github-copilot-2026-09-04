@@ -25,34 +25,51 @@ document.addEventListener("DOMContentLoaded", () => {
         const activityCard = document.createElement("div");
         activityCard.className = "activity-card";
 
-        const spotsLeft = details.max_participants - details.participants.length;
-        const participantItems = details.participants.length
-          ? details.participants
-              .map(
-                (participant) => `
+        const spotsLeft = Math.max(details.max_participants - details.participants.length, 0);
+        const waitlist = details.waitlist || [];
+        const isFull = spotsLeft === 0;
+        const renderPeople = (people, isWaitlisted) =>
+          people
+            .map(
+              (person) => `
                   <li>
-                    <span>${escapeHtml(participant)}</span>
+                    <span>${escapeHtml(person)}</span>
                     <button
                       class="remove-participant"
                       type="button"
                       data-activity="${escapeHtml(name)}"
-                      data-email="${escapeHtml(participant)}"
-                      aria-label="Unregister ${escapeHtml(participant)} from ${escapeHtml(name)}"
-                      title="Unregister participant"
+                      data-email="${escapeHtml(person)}"
+                      aria-label="Remove ${escapeHtml(person)} from ${
+                        isWaitlisted ? "the waitlist of" : ""
+                      } ${escapeHtml(name)}"
+                      title="${isWaitlisted ? "Remove from waitlist" : "Unregister participant"}"
                     >&times;</button>
                   </li>`
-              )
-              .join("")
+            )
+            .join("");
+
+        const participantItems = details.participants.length
+          ? renderPeople(details.participants, false)
           : '<li class="no-participants">No participants yet</li>';
+        const waitlistItems = waitlist.length
+          ? renderPeople(waitlist, true)
+          : '<li class="no-participants">No students on the waitlist</li>';
+        const availabilityText = isFull
+          ? `Full &mdash; ${waitlist.length} on waitlist`
+          : `${spotsLeft} spots left`;
 
         activityCard.innerHTML = `
           <h4>${name}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          <p><strong>Availability:</strong> ${availabilityText}</p>
           <div class="participants-section">
             <strong>Participants</strong>
             <ul class="participants-list">${participantItems}</ul>
+          </div>
+          <div class="participants-section waitlist-section">
+            <strong>Waitlist</strong>
+            <ul class="participants-list">${waitlistItems}</ul>
           </div>
         `;
 
@@ -92,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
       messageDiv.classList.remove("hidden");
       await fetchActivities();
     } catch (error) {
-      messageDiv.textContent = error.message || "Unable to unregister participant";
+      messageDiv.textContent = error.message || "Unable to remove participant";
       messageDiv.className = "error";
       messageDiv.classList.remove("hidden");
       console.error("Error unregistering participant:", error);
